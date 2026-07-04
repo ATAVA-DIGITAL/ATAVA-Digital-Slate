@@ -26,6 +26,11 @@
         .bg-canvas { position: absolute; top: 0; left: 0; z-index: 1; background: #0b1d12; width: 100%; height: 100%; }
         .drawing-canvas { position: absolute; top: 0; left: 0; z-index: 2; background: transparent; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
 
+        /* Celebration Screen Overlay */
+        .celebration-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: none; justify-content: center; align-items: center; flex-direction: column; background: rgba(11, 29, 18, 0.85); border-radius: 4px; animation: fadeIn 0.4s ease; }
+        .celebration-text { font-size: 3rem; font-weight: 900; color: #ffeb3b; text-shadow: 0 0 20px rgba(255,235,59,0.6); margin-bottom: 10px; animation: bounce 0.6s infinite alternate; }
+        .celebration-sub { color: white; font-weight: 700; font-size: 1.1rem; }
+
         /* Tracing Controller (Next / Prev Buttons) */
         .trace-controls { position: absolute; bottom: 20px; right: 20px; z-index: 3; display: none; gap: 8px; }
         .trace-btn { background: rgba(255,255,255,0.9); border: none; padding: 8px 16px; font-weight: 800; border-radius: 20px; cursor: pointer; font-size: 0.8rem; box-shadow: 0 4px 6px rgba(0,0,0,0.2); color: #1e293b; }
@@ -58,6 +63,9 @@
         .company-name { font-size: 1.2rem; font-weight: 900; color: #0284c7; letter-spacing: 0.5px; }
         .services-list { font-size: 0.85rem; color: #475569; margin: 6px 0 8px; font-weight: 600; line-height: 1.4; }
         .owner-name { font-size: 0.9rem; font-weight: 700; color: #0f5132; background: #d1e7dd; display: inline-block; padding: 4px 14px; border-radius: 20px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes bounce { from { transform: scale(0.9); } to { transform: scale(1.1); } }
     </style>
 </head>
 <body>
@@ -72,6 +80,7 @@
     <div class="board-selector">
         <button class="board-tab active" data-mode="normal"><i class="fa-solid fa-square"></i> സാധാരണ പലക</button>
         <button class="board-tab" data-mode="lines"><i class="fa-solid fa-grip-lines"></i> Four-Line ബോർഡ്</button>
+        <button class="board-tab" data-mode="malayalam"><i class="fa-solid fa-gopuram"></i> Malayalam Tracing</button>
         <button class="board-tab" data-mode="arabic"><i class="fa-solid fa-language"></i> Arabic Tracing</button>
         <button class="board-tab" data-mode="english-caps"><i class="fa-solid fa-font"></i> English (Caps)</button>
         <button class="board-tab" data-mode="english-small"><i class="fa-solid fa-font"></i> English (Small)</button>
@@ -84,6 +93,12 @@
             <canvas id="bgSlate" class="bg-canvas"></canvas>
             <!-- Foreground Canvas for User Drawing -->
             <canvas id="digitalSlate" class="drawing-canvas"></canvas>
+            
+            <!-- Celebration Screen overlay -->
+            <div class="celebration-overlay" id="celebOverlay">
+                <div class="celebration-text">Good Job! ⭐</div>
+                <div class="celebration-sub">അടിപൊളി! ചിത്രം ഗാലറിയിലേക്ക് സേവ് ചെയ്തിട്ടുണ്ട്.</div>
+            </div>
         </div>
         <!-- Letter Tracing Controller Panel -->
         <div class="trace-controls" id="traceControlPanel">
@@ -149,16 +164,75 @@
         const colorBtns = document.querySelectorAll('.color-btn');
         const boardTabs = document.querySelectorAll('.board-tab');
         const traceControlPanel = document.getElementById('traceControlPanel');
+        const celebOverlay = document.getElementById('celebOverlay');
 
         let drawing = false;
         let isEraser = false;
         let currentColor = '#ffffff';
         let currentSize = 5;
-        let currentMode = 'normal'; // normal, lines, arabic, english-caps, english-small
+        let currentMode = 'normal'; 
+
+        // Browser-generated Audio Synthesis Synthesizer Engines
+        let audioCtx = null;
+        let soundInterval = null;
+
+        function startChalkSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (soundInterval) return;
+
+                soundInterval = setInterval(() => {
+                    let bufferSize = audioCtx.sampleRate * 0.03;
+                    let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                    let data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+                    let noise = audioCtx.createBufferSource();
+                    noise.buffer = buffer;
+                    let filter = audioCtx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.value = isEraser ? 400 : 2200; // Deep sound for eraser, scratching for chalk
+                    filter.Q.value = 3;
+                    let gainNode = audioCtx.createGain();
+                    gainNode.gain.value = isEraser ? 0.15 : 0.04; // safe volume envelope
+
+                    noise.connect(filter);
+                    filter.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    noise.start();
+                }, 25);
+            } catch(e){}
+        }
+
+        function stopChalkSound() {
+            if (soundInterval) {
+                clearInterval(soundInterval);
+                soundInterval = null;
+            }
+        }
+
+        function playMagicClearSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch(e){}
+        }
 
         // Tracing Letters Datasets
         const datasets = {
-            'arabic': ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي'],
+            'malayalam': ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'ഋ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ'],
+            'arabic': ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'ദ', 'ذ', 'ر', 'ز', 'സ', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ല', 'م', 'ن', 'هـ', 'و', 'ي'],
             'english-caps': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
             'english-small': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         };
@@ -166,7 +240,6 @@
 
         function initCanvas() {
             const tempData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            
             const w = canvas.parentElement.clientWidth - 20;
             const h = 400;
 
@@ -184,8 +257,8 @@
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             if (isEraser) {
-                ctx.globalCompositeOperation = 'destination-out'; // Actually erases foreground pixels cleanly
-                ctx.lineWidth = 30;
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = 35;
             } else {
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.strokeStyle = currentColor;
@@ -193,7 +266,6 @@
             }
         }
 
-        // Background Slate Layout Render Engine
         function renderBackgroundLayer() {
             bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
             bgCtx.fillStyle = '#0b1d12';
@@ -202,7 +274,7 @@
             if (currentMode === 'lines') {
                 traceControlPanel.style.display = 'none';
                 drawFourLinesPattern();
-            } else if (['arabic', 'english-caps', 'english-small'].includes(currentMode)) {
+            } else if (['malayalam', 'arabic', 'english-caps', 'english-small'].includes(currentMode)) {
                 traceControlPanel.style.display = 'flex';
                 drawTracingLetterPattern();
             } else {
@@ -210,59 +282,50 @@
             }
         }
 
-        // Draw Traditional Red & Blue 4-Lines Notebook Grid
         function drawFourLinesPattern() {
             const lineSpacing = 35;
             const setSpacing = 130;
             let startY = 50;
 
             while (startY + (lineSpacing * 3) < bgCanvas.height) {
-                // Top Line - Blue
-                bgCtx.strokeStyle = '#2196f3';
-                bgCtx.lineWidth = 1.5;
+                bgCtx.strokeStyle = '#2196f3'; bgCtx.lineWidth = 1.5;
                 bgCtx.beginPath(); bgCtx.moveTo(0, startY); bgCtx.lineTo(bgCanvas.width, startY); bgCtx.stroke();
-
-                // Middle Two Lines - Red/Pink
                 bgCtx.strokeStyle = '#ff4444';
                 bgCtx.beginPath(); bgCtx.moveTo(0, startY + lineSpacing); bgCtx.lineTo(bgCanvas.width, startY + lineSpacing); bgCtx.stroke();
                 bgCtx.beginPath(); bgCtx.moveTo(0, startY + (lineSpacing * 2)); bgCtx.lineTo(bgCanvas.width, startY + (lineSpacing * 2)); bgCtx.stroke();
-
-                // Bottom Line - Blue
                 bgCtx.strokeStyle = '#2196f3';
                 bgCtx.beginPath(); bgCtx.moveTo(0, startY + (lineSpacing * 3)); bgCtx.lineTo(bgCanvas.width, startY + (lineSpacing * 3)); bgCtx.stroke();
-
                 startY += setSpacing;
             }
         }
 
-        // Draw Light Grey Faded Tracing Character Guide
         function drawTracingLetterPattern() {
             const list = datasets[currentMode];
             const letter = list[currentLetterIndex];
 
-            bgCtx.fillStyle = 'rgba(255, 255, 255, 0.15)'; // Elegant light chalk grey tint
+            bgCtx.fillStyle = 'rgba(255, 255, 255, 0.14)';
             bgCtx.textAlign = 'center';
             bgCtx.textBaseline = 'middle';
             
-            if (currentMode === 'arabic') {
-                bgCtx.font = '800 240px "Traditional Arabic", Georgia, serif';
+            if (currentMode === 'arabic' || currentMode === 'malayalam') {
+                bgCtx.font = '800 210px "Segoe UI", "Malgun Gothic", sans-serif';
             } else {
                 bgCtx.font = '800 220px "Segoe UI", sans-serif';
             }
-            
             bgCtx.fillText(letter, bgCanvas.width / 2, bgCanvas.height / 2 + 10);
         }
 
         window.addEventListener('resize', initCanvas);
         setTimeout(initCanvas, 150);
 
-        // Position Tracking Engine
         function startDrawing(e) {
             drawing = true;
+            startChalkSound();
             draw(e);
         }
         function stopDrawing() {
             drawing = false;
+            stopChalkSound();
             ctx.beginPath();
         }
         function draw(e) {
@@ -291,20 +354,17 @@
         canvas.addEventListener('touchend', stopDrawing);
         canvas.addEventListener('touchmove', draw);
 
-        // Board Selector Logic Switcher
         boardTabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 boardTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 currentMode = tab.getAttribute('data-mode');
-                currentLetterIndex = 0; // reset sequence index
-                
-                ctx.clearRect(0, 0, canvas.width, canvas.height); // Wipe screen drawing layer
+                currentLetterIndex = 0;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 renderBackgroundLayer();
             });
         });
 
-        // Tracing Next/Prev Pagination Engine
         document.getElementById('nextLetterBtn').addEventListener('click', () => {
             const list = datasets[currentMode];
             if(list && currentLetterIndex < list.length - 1) {
@@ -321,7 +381,6 @@
             }
         });
 
-        // Color Picker
         colorBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 isEraser = false;
@@ -351,19 +410,18 @@
         });
 
         clearBtn.addEventListener('click', () => {
+            playMagicClearSound();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
 
-        // Combined Layer Photo Downloader
+        // Combined Download Sequence with Celebration Animation Pop Trigger
         downloadBtn.addEventListener('click', () => {
             const saveCanvas = document.createElement('canvas');
             saveCanvas.width = canvas.width;
             saveCanvas.height = canvas.height;
             const saveCtx = saveCanvas.getContext('2d');
             
-            // Draw background layer (green canvas + grid lines/letter guides)
             saveCtx.drawImage(bgCanvas, 0, 0);
-            // Superimpose user foreground artwork on top
             saveCtx.drawImage(canvas, 0, 0);
             
             const dataURL = saveCanvas.toDataURL('image/jpeg');
@@ -371,6 +429,12 @@
             link.download = 'atava-slate-artwork.jpg';
             link.href = dataURL;
             link.click();
+
+            // Fire Celebration Animation Sequence Effect
+            celebOverlay.style.display = 'flex';
+            setTimeout(() => {
+                celebOverlay.style.display = 'none';
+            }, 2500);
         });
     </script>
 </body>

@@ -102,7 +102,7 @@
         </div>
         <!-- Letter Tracing Controller Panel -->
         <div class="trace-controls" id="traceControlPanel">
-            <button class="trace-btn" id="prevLetterBtn"><i class="fa-solid fa-arrow-left"></i> പുറകോട്ട്</button>
+            <button class="trace-btn" id="prevLetterBtn"><i class="fa-solid fa-arrow-left"></i> പുറകോっと</button>
             <button class="trace-btn" id="nextLetterBtn">അടുത്ത അക്ഷരം <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
@@ -172,7 +172,7 @@
         let currentSize = 5;
         let currentMode = 'normal'; 
 
-        // Browser-generated Audio Synthesis Synthesizer Engines
+        // Sound Engine
         let audioCtx = null;
         let soundInterval = null;
 
@@ -192,10 +192,10 @@
                     noise.buffer = buffer;
                     let filter = audioCtx.createBiquadFilter();
                     filter.type = 'bandpass';
-                    filter.frequency.value = isEraser ? 400 : 2200; // Deep sound for eraser, scratching for chalk
+                    filter.frequency.value = isEraser ? 400 : 2200;
                     filter.Q.value = 3;
                     let gainNode = audioCtx.createGain();
-                    gainNode.gain.value = isEraser ? 0.15 : 0.04; // safe volume envelope
+                    gainNode.gain.value = isEraser ? 0.15 : 0.04;
 
                     noise.connect(filter);
                     filter.connect(gainNode);
@@ -229,10 +229,10 @@
             } catch(e){}
         }
 
-        // Tracing Letters Datasets
+        // Cleaned Datasets - No cross-language mixups!
         const datasets = {
             'malayalam': ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'ഋ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ'],
-            'arabic': ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'ദ', 'ذ', 'ر', 'ز', 'സ', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ല', 'م', 'ن', 'هـ', 'و', 'ي'],
+            'arabic': ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ზ', 'സ', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ն', 'هـ', 'و', 'ي'],
             'english-caps': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
             'english-small': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         };
@@ -307,7 +307,10 @@
             bgCtx.textAlign = 'center';
             bgCtx.textBaseline = 'middle';
             
-            if (currentMode === 'arabic' || currentMode === 'malayalam') {
+            // Restored the pure "Traditional Arabic" font styling for Arabic mode
+            if (currentMode === 'arabic') {
+                bgCtx.font = '800 240px "Traditional Arabic", Georgia, serif';
+            } else if (currentMode === 'malayalam') {
                 bgCtx.font = '800 210px "Segoe UI", "Malgun Gothic", sans-serif';
             } else {
                 bgCtx.font = '800 220px "Segoe UI", sans-serif';
@@ -414,7 +417,6 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
 
-        // Combined Download Sequence with Celebration Animation Pop Trigger
         downloadBtn.addEventListener('click', () => {
             const saveCanvas = document.createElement('canvas');
             saveCanvas.width = canvas.width;
@@ -430,7 +432,6 @@
             link.href = dataURL;
             link.click();
 
-            // Fire Celebration Animation Sequence Effect
             celebOverlay.style.display = 'flex';
             setTimeout(() => {
                 celebOverlay.style.display = 'none';

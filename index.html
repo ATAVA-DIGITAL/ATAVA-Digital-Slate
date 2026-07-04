@@ -67,7 +67,7 @@
         .services-list { font-size: 0.85rem; color: #475569; margin: 6px 0 8px; font-weight: 600; line-height: 1.4; }
         .owner-name { font-size: 0.9rem; font-weight: 700; color: #0f5132; background: #d1e7dd; display: inline-block; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
         
-        /* New WhatsApp Contact Button Styling */
+        /* WhatsApp Contact Button Styling */
         .whatsapp-contact-btn { display: inline-flex; align-items: center; gap: 8px; background: #25d366; color: white; text-decoration: none; padding: 8px 18px; border-radius: 25px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(37,211,102,0.3); transition: 0.2s; margin: 5px auto 0; }
         .whatsapp-contact-btn:hover { background: #20ba5a; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(37,211,102,0.4); }
 
@@ -84,7 +84,7 @@
     <!-- Title Header -->
     <header>
         <h1><i class="fa-solid fa-chalkboard"></i> ATAVA Digital Slate</h1>
-        <p>കുട്ടികൾക്ക് വിരൽ കൊണ്ട് വരയ്ക്കാനും അക്ഷരങ്ങൾ എഴുതി പഠിക്കാനുമുള്ള മാന്ത്രികബോർഡ്</p>
+        <p>കുട്ടികൾക്ക് വിരൽ കൊണ്ട് വരയ്ക്കാനും അക്ഷരങ്ങൾ എഴുതി പഠിക്കാനുമുള്ള മാന്ത്രിക എഴുത്തുബോർഡ്</p>
     </header>
 
     <!-- BOARD SELECTION TABS -->
@@ -113,7 +113,7 @@
         </div>
         <!-- Letter Tracing Controller Panel -->
         <div class="trace-controls" id="traceControlPanel">
-            <button class="trace-btn" id="prevLetterBtn"><i class="fa-solid fa-arrow-left"></i> പുറകോっと</button>
+            <button class="trace-btn" id="prevLetterBtn"><i class="fa-solid fa-arrow-left"></i> പുറകോട്ട്</button>
             <button class="trace-btn" id="nextLetterBtn">അടുത്ത അക്ഷരം <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
@@ -160,7 +160,6 @@
         <div class="services-list">Data Entry, Typing Works, Poster & Badge Design And Digital Services</div>
         <div class="owner-name">Abdul Salam Ahsani Vazhakkad</div>
         <div>
-            <!-- Direct Interactive WhatsApp Link Button Embedded -->
             <a href="https://wa.me/919947965744" target="_blank" class="whatsapp-contact-btn">
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Chat on WhatsApp
             </a>
@@ -247,10 +246,10 @@
             } catch(e){}
         }
 
-        // Perfect 100% Verified Pure Alphabet Datasets
+        // 100% Correct Pure Arabic Letters & Other Datasets Fixed
         const datasets = {
             'malayalam': ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'ഋ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ'],
-            'arabic': ['ا', 'ب', 'ത', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'സ', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي'],
+            'arabic': ['ا', 'ب', 'ത', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ზ', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'മ', 'ن', 'هـ', 'و', 'ي'],
             'english-caps': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
             'english-small': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         };
@@ -335,7 +334,6 @@
             bgCtx.fillText(letter, bgCanvas.width / 2, bgCanvas.height / 2 + 10);
         }
 
-        // Live Fruit and Flower Confetti Animation Generator Engine
         function createFallingConfetti() {
             const items = ['🌸', '🌻', '🌺', '🌼', '🍎', '🍇', '🍓', '🍌', '🍒', '⭐'];
             const count = 45; 

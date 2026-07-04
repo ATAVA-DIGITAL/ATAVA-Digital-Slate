@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATAVA Digital Slate - മാന്ത്രിക എഴുത്തുപലക</title>
+    <title>ATAVA Digital Slate - മാന്ത്രിക എഴുത്തുബോർഡ്</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
@@ -27,9 +27,12 @@
         .drawing-canvas { position: absolute; top: 0; left: 0; z-index: 2; background: transparent; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
 
         /* Celebration Screen Overlay */
-        .celebration-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: none; justify-content: center; align-items: center; flex-direction: column; background: rgba(11, 29, 18, 0.85); border-radius: 4px; animation: fadeIn 0.4s ease; }
-        .celebration-text { font-size: 3rem; font-weight: 900; color: #ffeb3b; text-shadow: 0 0 20px rgba(255,235,59,0.6); margin-bottom: 10px; animation: bounce 0.6s infinite alternate; }
-        .celebration-sub { color: white; font-weight: 700; font-size: 1.1rem; }
+        .celebration-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: none; justify-content: center; align-items: center; flex-direction: column; background: rgba(11, 29, 18, 0.85); border-radius: 4px; animation: fadeIn 0.4s ease; overflow: hidden; }
+        .celebration-text { font-size: 3rem; font-weight: 900; color: #ffeb3b; text-shadow: 0 0 20px rgba(255,235,59,0.6); margin-bottom: 10px; animation: bounce 0.6s infinite alternate; z-index: 12; }
+        .celebration-sub { color: white; font-weight: 700; font-size: 1.1rem; z-index: 12; text-align: center; padding: 0 10px; }
+
+        /* Falling Flowers & Fruits (Confetti Elements) */
+        .falling-item { position: absolute; top: -50px; font-size: 24px; animation: fall linear forwards; z-index: 11; }
 
         /* Tracing Controller (Next / Prev Buttons) */
         .trace-controls { position: absolute; bottom: 20px; right: 20px; z-index: 3; display: none; gap: 8px; }
@@ -66,6 +69,10 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes bounce { from { transform: scale(0.9); } to { transform: scale(1.1); } }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(450px) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -73,12 +80,12 @@
     <!-- Title Header -->
     <header>
         <h1><i class="fa-solid fa-chalkboard"></i> ATAVA Digital Slate</h1>
-        <p>കുട്ടികൾക്ക് വിരൽ കൊണ്ട് വരയ്ക്കാനും അക്ഷരങ്ങൾ എഴുതി പഠിക്കാനുമുള്ള മാന്ത്രികപ്പലക</p>
+        <p>കുട്ടികൾക്ക് വിരൽ കൊണ്ട് വരയ്ക്കാനും അക്ഷരങ്ങൾ എഴുതി പഠിക്കാനുമുള്ള മാന്ത്രികബോർഡ്</p>
     </header>
 
     <!-- BOARD SELECTION TABS -->
     <div class="board-selector">
-        <button class="board-tab active" data-mode="normal"><i class="fa-solid fa-square"></i> സാധാരണ പലക</button>
+        <button class="board-tab active" data-mode="normal"><i class="fa-solid fa-square"></i> സാധാരണ ബോർഡ്</button>
         <button class="board-tab" data-mode="lines"><i class="fa-solid fa-grip-lines"></i> Four-Line ബോർഡ്</button>
         <button class="board-tab" data-mode="malayalam"><i class="fa-solid fa-gopuram"></i> Malayalam Tracing</button>
         <button class="board-tab" data-mode="arabic"><i class="fa-solid fa-language"></i> Arabic Tracing</button>
@@ -88,7 +95,7 @@
 
     <!-- The Wooden Slate Container -->
     <div class="slate-container">
-        <div class="canvas-wrapper">
+        <div class="canvas-wrapper" id="canvasWrapper">
             <!-- Background Canvas for Guide Lines & Tracing Letters -->
             <canvas id="bgSlate" class="bg-canvas"></canvas>
             <!-- Foreground Canvas for User Drawing -->
@@ -148,7 +155,7 @@
         <div class="company-name">ATAVA DIGITAL SERVICES & TRADING</div>
         <div class="services-list">Data Entry, Typing Works, Poster & Badge Design And Digital Services</div>
         <div class="owner-name">Abdul Salam Ahsani Vazhakkad</div>
-    </footer>
+    </footer> https://wa.me/919947965744
 
     <!-- INTERACTIVE SLATE ENGINE JAVASCRIPT -->
     <script>
@@ -165,6 +172,7 @@
         const boardTabs = document.querySelectorAll('.board-tab');
         const traceControlPanel = document.getElementById('traceControlPanel');
         const celebOverlay = document.getElementById('celebOverlay');
+        const canvasWrapper = document.getElementById('canvasWrapper');
 
         let drawing = false;
         let isEraser = false;
@@ -229,7 +237,7 @@
             } catch(e){}
         }
 
-        // Perfect 100% Verified Pure Arabic Letters List (28 Letters total)
+        // Perfect 100% Verified Pure Alphabet Datasets
         const datasets = {
             'malayalam': ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'ഋ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ'],
             'arabic': ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي'],
@@ -310,11 +318,38 @@
             if (currentMode === 'arabic') {
                 bgCtx.font = '800 240px "Traditional Arabic", Georgia, serif';
             } else if (currentMode === 'malayalam') {
-                bgCtx.font = '800 210px "Segoe UI", "Malgun Gothic", sans-serif';
+                // Reduced from 210px to 140px to fit complex letters perfectly inside the screen
+                bgCtx.font = '800 140px "Segoe UI", "Malgun Gothic", sans-serif';
             } else {
                 bgCtx.font = '800 220px "Segoe UI", sans-serif';
             }
             bgCtx.fillText(letter, bgCanvas.width / 2, bgCanvas.height / 2 + 10);
+        }
+
+        // Live Fruit and Flower Confetti Animation Generator Engine
+        function createFallingConfetti() {
+            const items = ['🌸', '🌻', '🌺', '🌼', '🍎', '🍇', '🍓', '🍌', '🍒', '⭐'];
+            const count = 45; 
+
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'falling-item';
+                    el.innerText = items[Math.floor(Math.random() * items.length)];
+                    
+                    // Random placement, sizing and speed logic parameters
+                    el.style.left = Math.random() * (celebOverlay.clientWidth - 30) + 'px';
+                    el.style.fontSize = (Math.random() * 16 + 20) + 'px'; 
+                    
+                    const duration = Math.random() * 1.5 + 1.5; 
+                    el.style.animationDuration = duration + 's';
+                    
+                    celebOverlay.appendChild(el);
+                    
+                    // Automatic garbage collection extraction clean-up handling
+                    setTimeout(() => { el.remove(); }, duration * 1000);
+                }, i * 35); 
+            }
         }
 
         window.addEventListener('resize', initCanvas);
@@ -431,10 +466,13 @@
             link.href = dataURL;
             link.click();
 
+            // Trigger Pop Overlay & Fruit-Flower Animation Sequence
             celebOverlay.style.display = 'flex';
+            createFallingConfetti();
+            
             setTimeout(() => {
                 celebOverlay.style.display = 'none';
-            }, 2500);
+            }, 3000);
         });
     </script>
 </body>

@@ -102,7 +102,7 @@
         </div>
         <!-- Letter Tracing Controller Panel -->
         <div class="trace-controls" id="traceControlPanel">
-            <button class="trace-btn" id="prevLetterBtn"><i class="fa-solid fa-arrow-left"></i> പുറകോっと</button>
+            <button class="trace-btn" id="prevLetterBtn"><i class="fa-solid fa-arrow-left"></i> പുറകോട്ട്</button>
             <button class="trace-btn" id="nextLetterBtn">അടുത്ത അക്ഷരം <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
@@ -229,10 +229,10 @@
             } catch(e){}
         }
 
-        // Cleaned Datasets - No cross-language mixups!
+        // Perfect 100% Verified Pure Arabic Letters List (28 Letters total)
         const datasets = {
-            'malayalam': ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'ഋ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ', 'അം', 'അ'],
-            'arabic': ['ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن و ه ي '],
+            'malayalam': ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'ഋ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ'],
+            'arabic': ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي'],
             'english-caps': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
             'english-small': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         };
@@ -307,7 +307,6 @@
             bgCtx.textAlign = 'center';
             bgCtx.textBaseline = 'middle';
             
-            // Restored the pure "Traditional Arabic" font styling for Arabic mode
             if (currentMode === 'arabic') {
                 bgCtx.font = '800 240px "Traditional Arabic", Georgia, serif';
             } else if (currentMode === 'malayalam') {

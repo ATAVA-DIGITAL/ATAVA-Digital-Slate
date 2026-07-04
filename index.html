@@ -235,8 +235,7 @@
             saveCtx.fillRect(0, 0, saveCanvas.width, saveCanvas.height);
             
             // Overlay user drawings on top
-            saveCtx.drawImage(canvas, 0, 0);
-            
+            saveCtx.drawImage(canvas, 0, 0); 
             // Trigger browser attachment download sequence
             const dataURL = saveCanvas.toDataURL('image/jpeg');
             const link = document.createElement('a');

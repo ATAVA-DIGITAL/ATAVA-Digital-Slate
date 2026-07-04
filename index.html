@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATAVA Digital Slate - മാന്ത്രിക എഴുത്തുപലക</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: #f1f5f9; color: #1e293b; display: flex; flex-direction: column; min-height: 100vh; padding: 15px; align-items: center; }
+        
+        header { text-align: center; margin-bottom: 15px; width: 100%; max-width: 800px; }
+        header h1 { color: #0f5132; font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        header p { color: #64748b; font-size: 0.9rem; margin-top: 3px; font-weight: 600; }
+
+        /* Main Slate Container */
+        .slate-container { background: #1a2522; border: 12px solid #5c4033; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.15); width: 100%; max-width: 800px; padding: 10px; position: relative; }
+        canvas { background: #0b1d12; border-radius: 4px; width: 100%; height: 400px; cursor: crosshair; touch-action: none; display: block; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); }
+
+        /* Toolkit Controls */
+        .tools-panel { background: #ffffff; border: 1px solid #e2e8f0; width: 100%; max-width: 800px; border-radius: 12px; padding: 15px; margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .tool-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .tool-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: #64748b; width: 100%; margin-bottom: 2px; }
+        
+        /* Color Buttons */
+        .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 3px solid #ffffff; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .color-btn.active { transform: scale(1.15); border-color: #1e293b; }
+
+        /* Action Buttons */
+        .btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-eraser { background: #cbd5e1; color: #334155; }
+        .btn-eraser.active { background: #334155; color: white; }
+        .btn-clear { background: #ef4444; color: white; }
+        .btn-clear:hover { background: #dc2626; }
+        .btn-download { background: #10b981; color: white; margin-left: auto; }
+        .btn-download:hover { background: #059669; }
+
+        /* Range Slider */
+        .size-slider { display: flex; align-items: center; gap: 8px; }
+        .size-slider input { cursor: pointer; accent-color: #0f5132; }
+
+        /* Footer Branding (Powered By...) */
+        footer { margin-top: auto; padding: 25px 10px 10px; text-align: center; width: 100%; max-width: 800px; border-top: 1px solid #e2e8f0; }
+        .powered-by { font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+        .company-name { font-size: 1.2rem; font-weight: 900; color: #0284c7; letter-spacing: 0.5px; }
+        .services-list { font-size: 0.85rem; color: #475569; margin: 6px 0 8px; font-weight: 600; line-height: 1.4; }
+        .owner-name { font-size: 0.9rem; font-weight: 700; color: #0f5132; background: #d1e7dd; display: inline-block; padding: 4px 14px; border-radius: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Title Header -->
+    <header>
+        <h1><i class="fa-solid fa-chalkboard"></i> ATAVA Digital Slate</h1>
+        <p>കുട്ടികൾക്ക് വിരൽ കൊണ്ട് വരയ്ക്കാനും അക്ഷരങ്ങൾ എഴുതി പഠിക്കാനുമുള്ള മാന്ത്രികപ്പലക</p>
+    </header>
+
+    <!-- The Wooden Slate Container -->
+    <div class="slate-container">
+        <canvas id="digitalSlate"></canvas>
+    </div>
+
+    <!-- Smart Tools Toolbar -->
+    <div class="tools-panel">
+        
+        <!-- Color Options -->
+        <div>
+            <div class="tool-label">ചോക്ക് നിറം (Chalk Colors)</div>
+            <div class="tool-group">
+                <div class="color-btn active" style="background: #ffffff;" data-color="#ffffff"></div>
+                <div class="color-btn" style="background: #ffeb3b;" data-color="#ffeb3b"></div>
+                <div class="color-btn" style="background: #ff4444;" data-color="#ff4444"></div>
+                <div class="color-btn" style="background: #4caf50;" data-color="#4caf50"></div>
+                <div class="color-btn" style="background: #2196f3;" data-color="#2196f3"></div>
+            </div>
+        </div>
+
+        <!-- Thickness Slider -->
+        <div class="size-slider">
+            <div>
+                <div class="tool-label">വണ്ണം (Size)</div>
+                <input type="range" id="brushSize" min="2" max="20" value="5">
+            </div>
+        </div>
+
+        <!-- Controls (Eraser & Clear) -->
+        <div>
+            <div class="tool-label">നിയന്ത്രണങ്ങൾ (Controls)</div>
+            <div class="tool-group">
+                <button class="btn btn-eraser" id="eraserBtn"><i class="fa-solid fa-eraser"></i> റബ്ബർ</button>
+                <button class="btn btn-clear" id="clearBtn"><i class="fa-solid fa-trash"></i> ക്ലിയർ</button>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <button class="btn btn-download" id="downloadBtn"><i class="fa-solid fa-floppy-disk"></i> സേവ് ചെയ്യുക</button>
+    </div>
+
+    <!-- POWERED BY ADVERTISING FOOTER -->
+    <footer>
+        <div class="powered-by">Powered by</div>
+        <div class="company-name">ATAVA DIGITAL SERVICES & TRADING</div>
+        <div class="services-list">Data Entry, Typing Works, Poster & Badge Design And Digital Services</div>
+        <div class="owner-name">Abdul Salam Ahsani Vazhakkad</div>
+    </footer>
+
+    <!-- INTERACTIVE SLATE JAVASCRIPT ENGINE -->
+    <script>
+        const canvas = document.getElementById('digitalSlate');
+        const ctx = canvas.getContext('2d');
+        
+        const eraserBtn = document.getElementById('eraserBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const brushSizeSlider = document.getElementById('brushSize');
+        const colorBtns = document.querySelectorAll('.color-btn');
+
+        let drawing = false;
+        let isEraser = false;
+        let currentColor = '#ffffff';
+        let currentSize = 5;
+
+        // Reset and Resize Canvas accurately
+        function initCanvas() {
+            // Save what was drawn before resizing
+            const tempData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            // Set the resolution space matching container layout
+            canvas.width = canvas.parentElement.clientWidth - 20;
+            canvas.height = 400; // Hardcoded static sleek slate height
+            
+            // Restore previous drawing if exists
+            ctx.putImageData(tempData, 0, 0);
+            updateContextSettings();
+        }
+
+        function updateContextSettings() {
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = isEraser ? '#0b1d12' : currentColor;
+            ctx.lineWidth = isEraser ? 25 : currentSize;
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas(); // Execute immediately on load
+
+        // Position Tracking Engine
+        function startDrawing(e) {
+            drawing = true;
+            draw(e);
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+
+            // Handle standard touch screen vs mouse calculations
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            let rect = canvas.getBoundingClientRect();
+            
+            // Map mouse viewport to high-res canvas scale grid safely
+            let x = (clientX - rect.left) * (canvas.width / rect.width);
+            let y = (clientY - rect.top) * (canvas.height / rect.height);
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Mouse listeners
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+        canvas.addEventListener('mousemove', draw);
+
+        // Mobile Smart Device Touch Listeners
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchmove', draw);
+
+        // Color Picker Logic
+        colorBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                isEraser = false;
+                eraserBtn.classList.remove('active');
+                colorBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentColor = btn.getAttribute('data-color');
+                updateContextSettings();
+            });
+        });
+
+        // Brush Size Control
+        brushSizeSlider.addEventListener('input', (e) => {
+            currentSize = e.target.value;
+            updateContextSettings();
+        });
+
+        // Eraser Trigger Button
+        eraserBtn.addEventListener('click', () => {
+            isEraser = !isEraser;
+            if(isEraser) {
+                eraserBtn.classList.add('active');
+                colorBtns.forEach(b => b.classList.remove('active'));
+            } else {
+                eraserBtn.classList.remove('active');
+                document.querySelector('[data-color="' + currentColor + '"]').classList.add('active');
+            }
+            updateContextSettings();
+        });
+
+        // Wipe Board Clear Action
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Export/Download Slate Screen as JPEG Photo
+        downloadBtn.addEventListener('click', () => {
+            // Create a temporary canvas to save with a solid background
+            const saveCanvas = document.createElement('canvas');
+            saveCanvas.width = canvas.width;
+            saveCanvas.height = canvas.height;
+            const saveCtx = saveCanvas.getContext('2d');
+            
+            // Draw slate green board background color
+            saveCtx.fillStyle = '#0b1d12';
+            saveCtx.fillRect(0, 0, saveCanvas.width, saveCanvas.height);
+            
+            // Overlay user drawings on top
+            saveCtx.drawImage(canvas, 0, 0);
+            
+            // Trigger browser attachment download sequence
+            const dataURL = saveCanvas.toDataURL('image/jpeg');
+            const link = document.createElement('a');
+            link.download = 'atava-slate-drawing.jpg';
+            link.href = dataURL;
+            link.click();
+        });
+    </script>
+</body>
+</html>

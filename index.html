@@ -65,7 +65,11 @@
         .powered-by { font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
         .company-name { font-size: 1.2rem; font-weight: 900; color: #0284c7; letter-spacing: 0.5px; }
         .services-list { font-size: 0.85rem; color: #475569; margin: 6px 0 8px; font-weight: 600; line-height: 1.4; }
-        .owner-name { font-size: 0.9rem; font-weight: 700; color: #0f5132; background: #d1e7dd; display: inline-block; padding: 4px 14px; border-radius: 20px; }
+        .owner-name { font-size: 0.9rem; font-weight: 700; color: #0f5132; background: #d1e7dd; display: inline-block; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; }
+        
+        /* New WhatsApp Contact Button Styling */
+        .whatsapp-contact-btn { display: inline-flex; align-items: center; gap: 8px; background: #25d366; color: white; text-decoration: none; padding: 8px 18px; border-radius: 25px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(37,211,102,0.3); transition: 0.2s; margin: 5px auto 0; }
+        .whatsapp-contact-btn:hover { background: #20ba5a; transform: translateY(-2px); box-shadow: 0 6px 14px rgba(37,211,102,0.4); }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes bounce { from { transform: scale(0.9); } to { transform: scale(1.1); } }
@@ -109,7 +113,7 @@
         </div>
         <!-- Letter Tracing Controller Panel -->
         <div class="trace-controls" id="traceControlPanel">
-            <button class="trace-btn" id="prevLetterBtn"><i class="fa-solid fa-arrow-left"></i> പുറകോട്ട്</button>
+            <button class="trace-btn" id="prevLetterBtn"><i class="fa-solid fa-arrow-left"></i> പുറകോっと</button>
             <button class="trace-btn" id="nextLetterBtn">അടുത്ത അക്ഷരം <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
@@ -149,13 +153,19 @@
         <button class="btn btn-download" id="downloadBtn"><i class="fa-solid fa-floppy-disk"></i> സേവ് ചെയ്യുക</button>
     </div>
 
-    <!-- POWERED BY ADVERTISING FOOTER -->
+    <!-- POWERED BY ADVERTISING FOOTER WITH INTEGRATED WHATSAPP ROUTING -->
     <footer>
         <div class="powered-by">Powered by</div>
         <div class="company-name">ATAVA DIGITAL SERVICES & TRADING</div>
         <div class="services-list">Data Entry, Typing Works, Poster & Badge Design And Digital Services</div>
         <div class="owner-name">Abdul Salam Ahsani Vazhakkad</div>
-    </footer> https://wa.me/919947965744
+        <div>
+            <!-- Direct Interactive WhatsApp Link Button Embedded -->
+            <a href="https://wa.me/919947965744" target="_blank" class="whatsapp-contact-btn">
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> Chat on WhatsApp
+            </a>
+        </div>
+    </footer>
 
     <!-- INTERACTIVE SLATE ENGINE JAVASCRIPT -->
     <script>
@@ -240,7 +250,7 @@
         // Perfect 100% Verified Pure Alphabet Datasets
         const datasets = {
             'malayalam': ['അ', 'ആ', 'ഇ', 'ഈ', 'ഉ', 'ഊ', 'ഋ', 'എ', 'ഏ', 'ഐ', 'ഒ', 'ഓ', 'ഔ'],
-            'arabic': ['ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي'],
+            'arabic': ['ا', 'ب', 'ത', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'സ', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'هـ', 'و', 'ي'],
             'english-caps': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
             'english-small': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         };
@@ -318,7 +328,6 @@
             if (currentMode === 'arabic') {
                 bgCtx.font = '800 240px "Traditional Arabic", Georgia, serif';
             } else if (currentMode === 'malayalam') {
-                // Reduced from 210px to 140px to fit complex letters perfectly inside the screen
                 bgCtx.font = '800 140px "Segoe UI", "Malgun Gothic", sans-serif';
             } else {
                 bgCtx.font = '800 220px "Segoe UI", sans-serif';
@@ -336,8 +345,6 @@
                     const el = document.createElement('div');
                     el.className = 'falling-item';
                     el.innerText = items[Math.floor(Math.random() * items.length)];
-                    
-                    // Random placement, sizing and speed logic parameters
                     el.style.left = Math.random() * (celebOverlay.clientWidth - 30) + 'px';
                     el.style.fontSize = (Math.random() * 16 + 20) + 'px'; 
                     
@@ -346,7 +353,6 @@
                     
                     celebOverlay.appendChild(el);
                     
-                    // Automatic garbage collection extraction clean-up handling
                     setTimeout(() => { el.remove(); }, duration * 1000);
                 }, i * 35); 
             }
@@ -466,7 +472,6 @@
             link.href = dataURL;
             link.click();
 
-            // Trigger Pop Overlay & Fruit-Flower Animation Sequence
             celebOverlay.style.display = 'flex';
             createFallingConfetti();
             
